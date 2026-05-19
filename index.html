@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>彩票走势分析站 - 多彩种开奖查询</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="logo">
+                <span class="logo-icon">🎱</span>
+                <h1>彩票走势分析站</h1>
+                <span class="logo-subtitle">开奖查询 · 走势统计 · 选号参考</span>
+            </div>
+            <nav class="lottery-nav" id="lotteryNav">
+                <button type="button" class="lottery-tab active" data-type="ssq">双色球</button>
+                <button type="button" class="lottery-tab" data-type="dlt">大乐透</button>
+                <button type="button" class="lottery-tab" data-type="fc3d">福彩3D</button>
+                <button type="button" class="lottery-tab" data-type="pl3">排列三</button>
+            </nav>
+        </header>
+
+        <nav class="feature-nav" id="featureNav">
+            <button type="button" class="feature-tab active" data-tab="query">开奖查询</button>
+            <button type="button" class="feature-tab" data-tab="trend">走势分析</button>
+            <button type="button" class="feature-tab" data-tab="stats">数据统计</button>
+            <button type="button" class="feature-tab" data-tab="picker">选号工具</button>
+        </nav>
+
+        <main class="main-content">
+            <section class="panel active" id="panel-query">
+                <div class="latest-card" id="latestCard">
+                    <div class="latest-label">最新开奖</div>
+                    <div class="latest-issue" id="latestIssue">—</div>
+                    <div class="latest-date" id="latestDate">—</div>
+                    <div class="ball-row" id="latestBalls"></div>
+                </div>
+                <div class="toolbar">
+                    <label>期号筛选</label>
+                    <input type="text" id="filterIssue" placeholder="如 2026015" class="input-sm">
+                    <label>显示</label>
+                    <select id="queryPageSize">
+                        <option value="10">10 期</option>
+                        <option value="20" selected>20 期</option>
+                        <option value="30">30 期</option>
+                    </select>
+                    <button type="button" class="btn btn-primary btn-sm" id="btnQueryFilter">筛选</button>
+                    <button type="button" class="btn btn-secondary btn-sm" id="btnQueryReset">重置</button>
+                </div>
+                <div class="table-wrap">
+                    <table class="data-table" id="drawTable">
+                        <thead id="drawTableHead"></thead>
+                        <tbody id="drawTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="panel" id="panel-trend">
+                <div class="toolbar">
+                    <label>分析期数</label>
+                    <select id="trendPeriods">
+                        <option value="15">近 15 期</option>
+                        <option value="30" selected>近 30 期</option>
+                    </select>
+                    <label id="trendMetricLabel" class="ssq-metric-label">折线指标</label>
+                    <select id="trendMetric" class="ssq-metric-label">
+                        <option value="sum">和值</option>
+                        <option value="span">跨度</option>
+                        <option value="odd">奇数个数</option>
+                    </select>
+                    <button type="button" class="btn btn-primary btn-sm" id="btnTrendRefresh">刷新走势</button>
+                </div>
+                <div id="trendSsqWrap" class="trend-ssq-wrap">
+                    <h3 class="section-title">红球走势 <span class="hint">01–33</span></h3>
+                    <div class="trend-scroll">
+                        <table class="trend-table" id="trendRedTable"></table>
+                    </div>
+                    <h3 class="section-title">蓝球走势 <span class="hint">01–16</span></h3>
+                    <div class="trend-scroll">
+                        <table class="trend-table trend-table-blue" id="trendBlueTable"></table>
+                    </div>
+                    <h3 class="section-title">指标折线图</h3>
+                    <div class="chart-wrap">
+                        <canvas id="trendChart" width="900" height="220"></canvas>
+                    </div>
+                </div>
+                <div id="trendGenericWrap" class="trend-generic-wrap hidden">
+                    <h3 class="section-title">号码走势</h3>
+                    <div class="trend-scroll">
+                        <table class="trend-table" id="trendGenericTable"></table>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel" id="panel-stats">
+                <div class="toolbar">
+                    <label>统计范围</label>
+                    <select id="statsPeriods">
+                        <option value="10">近 10 期</option>
+                        <option value="20">近 20 期</option>
+                        <option value="30" selected>近 30 期</option>
+                    </select>
+                </div>
+                <div class="stats-grid" id="statsGrid"></div>
+                <h3 class="section-title">号码出现次数（热 → 冷）</h3>
+                <div class="freq-bars" id="freqBars"></div>
+            </section>
+
+            <section class="panel" id="panel-picker">
+                <div class="picker-box">
+                    <h3 class="section-title">机选号码</h3>
+                    <p class="panel-desc">根据当前彩种规则随机生成号码，仅供参考。</p>
+                    <div class="picker-result" id="pickerResult">
+                        <span class="picker-placeholder">点击下方按钮生成号码</span>
+                    </div>
+                    <div class="picker-actions">
+                        <button type="button" class="btn btn-primary" id="btnRandom1">机选 1 注</button>
+                        <button type="button" class="btn btn-secondary" id="btnRandom5">机选 5 注</button>
+                        <button type="button" class="btn btn-secondary" id="btnCopyPick">复制结果</button>
+                    </div>
+                </div>
+                <div class="picker-box" id="pickerFilterBox">
+                    <h3 class="section-title">简单过滤（双色球/大乐透）</h3>
+                    <div class="filter-row">
+                        <label>和值范围</label>
+                        <input type="number" id="filterSumMin" placeholder="最小" class="input-sm">
+                        <span>—</span>
+                        <input type="number" id="filterSumMax" placeholder="最大" class="input-sm">
+                        <button type="button" class="btn btn-sm btn-primary" id="btnFilterPick">按条件机选</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="app-footer">
+            <p>本站仅供开奖信息查询与走势统计分析学习使用，不提供购彩服务。开奖结果请以福彩/体彩官方公布为准。</p>
+            <p class="footer-meta">当前彩种：<strong id="footerLottery">双色球</strong> · 共 <strong id="footerCount">0</strong> 期数据</p>
+        </footer>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="data/lottery-data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
